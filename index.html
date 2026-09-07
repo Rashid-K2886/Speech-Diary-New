@@ -70,9 +70,7 @@
             margin-bottom: 15px;
         }
 
-        .calendar-header h2 {
-            font-size: 18px;
-        }
+        .calendar-header h2 { font-size: 18px; }
 
         .calendar-grid {
             display: grid;
@@ -101,18 +99,9 @@
             box-sizing: border-box;
         }
 
-        .day-cell:hover { 
-            background-color: #e2e8f0; 
-        }
-        
-        .day-cell.free { 
-            border-bottom: 3px solid #22c55e; 
-        }
-        
-        .day-cell.busy { 
-            background-color: #dbeafe; 
-            border-bottom: 3px solid var(--primary-light); 
-        }
+        .day-cell:hover { background-color: #e2e8f0; }
+        .day-cell.free { border-bottom: 3px solid #22c55e; }
+        .day-cell.busy { background-color: #dbeafe; border-bottom: 3px solid var(--primary-light); }
         
         .day-number { 
             font-weight: 800; 
@@ -270,7 +259,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyM1AN5OYSYUrUHOVFOz5kUyb3-0VZdGDUKBtR398aB4Og-tuv702Xn0nasNwfvEd6J/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxElcN7oEzgXetANiw9cRCE-gDUa4j3DuEYPD-7qrykbi5W_JP4ve2FGXaJOSlSyYD5/exec';
 
     let currentDate = new Date();
     let events = []; 
@@ -309,7 +298,6 @@
                     ev.date = cleanDate(ev.date);
                     return ev;
                 });
-                events.sort((a, b) => new Date(`${a.date}T${a.time24 || '00:00'}`) - new Date(`${b.date}T${b.time24 || '00:00'}`));
                 render();
             })
             .catch(error => {
@@ -342,18 +330,12 @@
         const minute = document.getElementById('minute').value;
         const ampm = document.getElementById('ampm').value;
 
-        let h24 = parseInt(hour);
-        if (ampm === 'PM' && h24 < 12) h24 += 12;
-        if (ampm === 'AM' && h24 === 12) h24 = 0;
-        const time24 = `${String(h24).padStart(2, '0')}:${minute}`;
-
         const eventData = {
             title: document.getElementById('title').value,
             date: document.getElementById('selectedDate').value,
             hour: hour,
             minute: minute,
             ampm: ampm,
-            time24: time24,
             location: document.getElementById('location').value,
             contact: document.getElementById('contact').value
         };
@@ -371,7 +353,6 @@
         .catch(error => console.error('Error saving data:', error));
     });
 
-    // ഇവിടെ തീയതി DD-MM-YYYY ഫോർമാറ്റിലേക്ക് മാറ്റുന്നു
     function formatDateDDMMYYYY(dateString) {
         if (!dateString) return '';
         const parts = dateString.split('-');
@@ -428,14 +409,14 @@
 
         events.forEach((ev) => {
             const displayDate = formatDateDDMMYYYY(ev.date);
-            const displayTime = ev.time24 ? ev.time24 : '';
+            const displayTime = ev.time ? ev.time : '';
             
             list.innerHTML += `
                 <div class="event-card">
                     <div class="event-info">
-                        <strong style="font-size: 15px; color: var(--primary);">${ev.title}</strong><br>
+                        <strong style="font-size: 15px; color: var(--primary);">${ev.title || 'No Title'}</strong><br>
                         <span>📅 ${displayDate} | ⏰ ${displayTime}</span><br>
-                        <span>📍 ${ev.location}</span><br>
+                        <span>📍 ${ev.location || 'N/A'}</span><br>
                         <span>📞 ${ev.contact || 'N/A'}</span>
                     </div>
                 </div>
