@@ -329,13 +329,12 @@
         const hour = document.getElementById('hour').value;
         const minute = document.getElementById('minute').value;
         const ampm = document.getElementById('ampm').value;
+        const timeString = `${hour}:${minute} ${ampm}`;
 
         const eventData = {
             title: document.getElementById('title').value,
             date: document.getElementById('selectedDate').value,
-            hour: hour,
-            minute: minute,
-            ampm: ampm,
+            time: timeString,
             location: document.getElementById('location').value,
             contact: document.getElementById('contact').value
         };
