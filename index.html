@@ -55,6 +55,19 @@
 
         .btn-primary:hover { background-color: var(--primary-dark); }
 
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-edit { background-color: #f59e0b; color: white; }
+        .btn-edit:hover { background-color: #d97706; }
+        .btn-delete { background-color: #ef4444; color: white; }
+        .btn-delete:hover { background-color: #dc2626; }
+
         .calendar-card {
             background: white;
             border-radius: 10px;
@@ -180,6 +193,12 @@
             word-break: break-word;
         }
 
+        .event-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
         @media (max-width: 480px) {
             body { padding: 5px; }
             h1 { font-size: 18px; }
@@ -218,6 +237,7 @@
         <h2 id="modalTitle" style="color: var(--primary); margin-top:0; font-size: 20px;">New Speech Entry</h2>
         <form id="eventForm">
             <input type="hidden" id="selectedDate">
+            <input type="hidden" id="editRowIndex">
 
             <div class="form-group">
                 <label>Program Name / Topic:</label>
@@ -251,7 +271,7 @@
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button type="submit" class="btn-primary" style="flex:1;">Save Event</button>
+                <button type="submit" class="btn-primary" style="flex:1;" id="saveBtn">Save Event</button>
                 <button type="button" class="btn-primary" style="background:#64748b; flex:1;" onclick="closeModal()">Cancel</button>
             </div>
         </form>
@@ -306,14 +326,40 @@
             });
     }
 
-    function openModal(selectedDate) { 
+    function openModal(selectedDate, eventToEdit = null) { 
         document.getElementById('selectedDate').value = selectedDate;
-        document.getElementById('title').value = '';
-        document.getElementById('hour').value = '12';
-        document.getElementById('minute').value = '00';
-        document.getElementById('ampm').value = 'AM';
-        document.getElementById('location').value = '';
-        document.getElementById('contact').value = '';
+        
+        if (eventToEdit) {
+            document.getElementById('modalTitle').innerText = "Edit Speech Entry";
+            document.getElementById('saveBtn').innerText = "Update Event";
+            document.getElementById('editRowIndex').value = eventToEdit.rowIndex;
+            document.getElementById('title').value = eventToEdit.title || '';
+            document.getElementById('location').value = eventToEdit.location || '';
+            document.getElementById('contact').value = eventToEdit.contact || '';
+
+            // Parse time if format is like "3:15 PM"
+            if (eventToEdit.time) {
+                let parts = eventToEdit.time.split(' ');
+                if (parts.length === 2) {
+                    let hm = parts[0].split(':');
+                    if (hm.length === 2) {
+                        document.getElementById('hour').value = hm[0];
+                        document.getElementById('minute').value = hm[1];
+                    }
+                    document.getElementById('ampm').value = parts[1];
+                }
+            }
+        } else {
+            document.getElementById('modalTitle').innerText = "New Speech Entry";
+            document.getElementById('saveBtn').innerText = "Save Event";
+            document.getElementById('editRowIndex').value = '';
+            document.getElementById('title').value = '';
+            document.getElementById('hour').value = '12';
+            document.getElementById('minute').value = '00';
+            document.getElementById('ampm').value = 'AM';
+            document.getElementById('location').value = '';
+            document.getElementById('contact').value = '';
+        }
 
         document.getElementById('eventModal').style.display = 'flex'; 
     }
@@ -330,8 +376,11 @@
         const minute = document.getElementById('minute').value;
         const ampm = document.getElementById('ampm').value;
         const timeString = `${hour}:${minute} ${ampm}`;
+        const editRowIndex = document.getElementById('editRowIndex').value;
 
         const eventData = {
+            action: editRowIndex ? 'update' : 'add',
+            rowIndex: editRowIndex ? parseInt(editRowIndex) : null,
             title: document.getElementById('title').value,
             date: document.getElementById('selectedDate').value,
             time: timeString,
@@ -351,6 +400,20 @@
         })
         .catch(error => console.error('Error saving data:', error));
     });
+
+    function deleteEvent(rowIndex) {
+        if (confirm('തീർച്ചയായും ഈ പ്രോഗ്രാം ഡിലീറ്റ് ചെയ്യണോ?')) {
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'delete', rowIndex: rowIndex })
+            })
+            .then(response => response.json())
+            .then(result => {
+                loadEventsFromSheet();
+            })
+            .catch(error => console.error('Error deleting data:', error));
+        }
+    }
 
     function formatDateDDMMYYYY(dateString) {
         if (!dateString) return '';
@@ -406,10 +469,16 @@
             return;
         }
 
+        // ഇവന്റുകൾ ഡേറ്റ് അടിസ്ഥാനമാക്കി അടുക്കാം
+        events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
         events.forEach((ev) => {
             const displayDate = formatDateDDMMYYYY(ev.date);
             const displayTime = ev.time ? ev.time : '';
             
+            // ഒബ്‌ജക്റ്റ് സുരക്ഷിതമായി പാസ് ചെയ്യാൻ JSON.stringify ഉപയോഗിക്കുന്നു
+            const evJson = JSON.stringify(ev).replace(/"/g, '&quot;');
+
             list.innerHTML += `
                 <div class="event-card">
                     <div class="event-info">
@@ -417,6 +486,10 @@
                         <span>📅 ${displayDate} | ⏰ ${displayTime}</span><br>
                         <span>📍 ${ev.location || 'N/A'}</span><br>
                         <span>📞 ${ev.contact || 'N/A'}</span>
+                    </div>
+                    <div class="event-actions">
+                        <button class="btn-sm btn-edit" onclick="openModal('${ev.date}', ${evJson})">Edit</button>
+                        <button class="btn-sm btn-delete" onclick="deleteEvent(${ev.rowIndex})">Delete</button>
                     </div>
                 </div>
             `;
