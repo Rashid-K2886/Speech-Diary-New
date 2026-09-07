@@ -270,7 +270,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxElcN7oEzgXetANiw9cRCE-gDUa4j3DuEYPD-7qrykbi5W_JP4ve2FGXaJOSlSyYD5/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyM1AN5OYSYUrUHOVFOz5kUyb3-0VZdGDUKBtR398aB4Og-tuv702Xn0nasNwfvEd6J/exec';
 
     let currentDate = new Date();
     let events = []; 
@@ -371,7 +371,7 @@
         .catch(error => console.error('Error saving data:', error));
     });
 
-    // DD-MM-YYYY ഫോർമാറ്റിലേക്ക് മാറ്റുന്ന ഫംഗ്ഷൻ
+    // ഇവിടെ തീയതി DD-MM-YYYY ഫോർമാറ്റിലേക്ക് മാറ്റുന്നു
     function formatDateDDMMYYYY(dateString) {
         if (!dateString) return '';
         const parts = dateString.split('-');
