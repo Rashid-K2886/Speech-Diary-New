@@ -57,21 +57,6 @@
 
         .btn-primary:hover { background-color: var(--primary-dark); }
 
-        .btn-small {
-            padding: 6px 10px;
-            font-size: 12px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-edit { background-color: var(--primary-light); color: white; }
-        .btn-edit:hover { background-color: var(--primary-dark); }
-
-        .btn-delete { background-color: var(--danger); color: white; }
-        .btn-delete:hover { background-color: var(--danger-dark); }
-
         .calendar-card {
             background: white;
             border-radius: 10px;
@@ -109,10 +94,11 @@
             background-color: #f1f5f9;
             border-radius: 6px;
             padding: 6px 2px;
-            min-height: 60px;
+            min-height: 65px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            align-items: center;
             cursor: pointer;
             transition: transform 0.1s, background-color 0.2s;
         }
@@ -122,23 +108,29 @@
         }
         
         .day-cell.free { border-bottom: 3px solid #22c55e; }
-        .day-cell.busy { background-color: #dbeafe; border-bottom: 3px solid var(--primary-light); }
+        
+        /* ഇവന്റ് ഉള്ള ദിവസങ്ങൾക്ക് മനോഹരമായ ബ്ലൂ ഹൈലൈറ്റ് */
+        .day-cell.busy { 
+            background-color: #dbeafe; 
+            border-bottom: 3px solid var(--primary-light); 
+        }
         
         .day-number { 
             font-weight: 800; 
             font-size: 15px; 
-            text-align: right; 
+            text-align: center; 
             color: var(--primary);
-            padding-right: 2px;
         }
 
+        /* ഇവന്റിന്റെ എണ്ണം വ്യക്തമായി കാണിക്കുന്ന ബാഡ്ജ് */
         .badge-count {
-            font-size: 9px;
+            font-size: 10px;
             background: var(--primary);
             color: white;
-            border-radius: 10px;
-            padding: 2px 3px;
-            font-weight: 600;
+            border-radius: 12px;
+            padding: 2px 6px;
+            font-weight: 700;
+            margin-top: 2px;
         }
 
         /* Modal Styles */
@@ -191,18 +183,12 @@
             word-break: break-word;
         }
 
-        .event-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
         @media (max-width: 480px) {
             body { padding: 5px; }
             h1 { font-size: 18px; }
-            .day-cell { min-height: 50px; padding: 4px 1px; }
+            .day-cell { min-height: 55px; padding: 4px 1px; }
             .day-number { font-size: 13px; }
-            .badge-count { font-size: 8px; padding: 1px 2px; }
+            .badge-count { font-size: 8px; padding: 1px 4px; }
             .day-label { font-size: 11px; }
         }
     </style>
@@ -281,7 +267,7 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxElcN7oEzgXetANiw9cRCE-gDUa4j3DuEYPD-7qrykbi5W_JP4ve2FGXaJOSlSyYD5/exec';
 
     let currentDate = new Date();
-    let events = []; // ഗൂഗിൾ ഷീറ്റിൽ നിന്ന് ഡാറ്റ നേരിട്ട് ലോഡ് ചെയ്യും
+    let events = []; 
 
     function populateTimeDropdowns() {
         const hourSelect = document.getElementById('hour');
@@ -297,13 +283,11 @@
         }
     }
 
-    // ഗൂഗിൾ ഷീറ്റിൽ നിന്ന് ഡാറ്റ ഫെച്ച് ചെയ്ത് എടുക്കുന്നു
     function loadEventsFromSheet() {
         fetch(SCRIPT_URL)
             .then(response => response.json())
             .then(data => {
                 events = data;
-                // തീയതിയും സമയവും അനുസരിച്ച് സോർട്ട് ചെയ്യുന്നു
                 events.sort((a, b) => new Date(`${a.date}T${a.time24 || '00:00'}`) - new Date(`${b.date}T${b.time24 || '00:00'}`));
                 render();
             })
@@ -330,7 +314,6 @@
         document.getElementById('eventForm').reset();
     }
 
-    // പുതിയ ഇവന്റ് സേവ് ചെയ്യുമ്പോൾ ഗൂഗിൾ ഷീറ്റിലേക്ക് പോസ്റ്റ് ചെയ്യുന്നു
     document.getElementById('eventForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -356,14 +339,12 @@
 
         closeModal();
 
-        // ഗൂഗിൾ ഷീറ്റിലേക്ക് ഡാറ്റ അയക്കുന്നു
         fetch(SCRIPT_URL, { 
             method: 'POST', 
             body: JSON.stringify(eventData) 
         })
         .then(response => response.json())
         .then(result => {
-            // സേവ് ആയ ഉടൻ ലേറ്റസ്റ്റ് ഡാറ്റ വീണ്ടും ലോഡ് ചെയ്യും
             loadEventsFromSheet();
         })
         .catch(error => console.error('Error saving data:', error));
@@ -446,7 +427,7 @@
     }
 
     populateTimeDropdowns();
-    loadEventsFromSheet(); // ആപ്പ് ലോഡ് ചെയ്യുമ്പോൾ തന്നെ ഷീറ്റിൽ നിന്ന് ഡാറ്റ എടുക്കും
+    loadEventsFromSheet();
 </script>
 
 </body>
