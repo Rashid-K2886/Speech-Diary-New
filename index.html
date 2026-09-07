@@ -280,7 +280,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1NGk8UuAprtvz5vYULMh0ItYRdMBSgGmCBmFrIa55O_XzMUVA7KyHT4v9gUn4LHA7/exec';
 
     let currentDate = new Date();
     let events = JSON.parse(localStorage.getItem('speechEvents')) || [];
@@ -366,7 +366,7 @@
         localStorage.setItem('speechEvents', JSON.stringify(events));
 
         if (SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbwOPdZXolr4E-4YrvhEt9zq5lFM-_PZVrIEl-c5lnBbQEyuFoKRWz8jC0sZ0kgCkwk/exec') {
-            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(eventData) });
+            fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(eventData) });
         }
 
         closeModal();
