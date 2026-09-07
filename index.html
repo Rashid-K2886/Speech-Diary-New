@@ -93,44 +93,59 @@
         .day-cell {
             background-color: #f1f5f9;
             border-radius: 6px;
-            padding: 6px 2px;
-            min-height: 65px;
+            padding: 6px 4px;
+            min-height: 60px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            align-items: center;
             cursor: pointer;
             transition: transform 0.1s, background-color 0.2s;
+            box-sizing: border-box;
         }
 
         .day-cell:hover { 
             background-color: #e2e8f0; 
         }
         
-        .day-cell.free { border-bottom: 3px solid #22c55e; }
+        /* ഫ്രീ ദിവസങ്ങളുടെ സ്റ്റൈൽ */
+        .day-cell.free { 
+            border-bottom: 3px solid #22c55e; 
+        }
         
-        /* ഇവന്റ് ഉള്ള ദിവസങ്ങൾക്ക് മനോഹരമായ ബ്ലൂ ഹൈലൈറ്റ് */
+        /* ഇവന്റ് ഉള്ള ദിവസങ്ങളുടെ സ്റ്റൈൽ (ഫോട്ടോയിലേതുപോലെ ലൈറ്റ് ബ്ലൂ ബാക്ക്ഗ്രൗണ്ട്) */
         .day-cell.busy { 
             background-color: #dbeafe; 
             border-bottom: 3px solid var(--primary-light); 
         }
         
+        /* തീയതി മുകളിൽ വലതുവശത്തേക്ക് അലൈൻ ചെയ്തു */
         .day-number { 
             font-weight: 800; 
             font-size: 15px; 
-            text-align: center; 
+            text-align: right; 
             color: var(--primary);
+            width: 100%;
+            padding-right: 2px;
         }
 
-        /* ഇവന്റിന്റെ എണ്ണം വ്യക്തമായി കാണിക്കുന്ന ബാഡ്ജ് */
+        /* ഫോട്ടോയിൽ കാണുന്ന പോലെയുള്ള ബ്ലൂ ബാഡ്ജ് ടാഗ് */
         .badge-count {
-            font-size: 10px;
+            font-size: 9px;
             background: var(--primary);
             color: white;
-            border-radius: 12px;
-            padding: 2px 6px;
-            font-weight: 700;
-            margin-top: 2px;
+            border-radius: 10px;
+            padding: 2px 5px;
+            font-weight: 600;
+            align-self: center;
+            margin-bottom: 2px;
+        }
+
+        .free-text {
+            font-size: 9px; 
+            color: #22c55e; 
+            font-weight: 600;
+            align-self: center;
+            margin-bottom: 2px;
         }
 
         /* Modal Styles */
@@ -186,9 +201,10 @@
         @media (max-width: 480px) {
             body { padding: 5px; }
             h1 { font-size: 18px; }
-            .day-cell { min-height: 55px; padding: 4px 1px; }
+            .day-cell { min-height: 50px; padding: 4px 2px; }
             .day-number { font-size: 13px; }
-            .badge-count { font-size: 8px; padding: 1px 4px; }
+            .badge-count { font-size: 8px; padding: 1px 3px; }
+            .free-text { font-size: 8px; }
             .day-label { font-size: 11px; }
         }
     </style>
@@ -389,7 +405,7 @@
             grid.innerHTML += `
                 <div class="day-cell ${isBusy ? 'busy' : 'free'}" onclick="openModal('${formattedDate}')">
                     <div class="day-number">${day}</div>
-                    ${isBusy ? `<span class="badge-count">${dayEvents.length} Event(s)</span>` : '<span style="font-size:9px; color:#22c55e; font-weight:600;">Free</span>'}
+                    ${isBusy ? `<span class="badge-count">${dayEvents.length} Event(s)</span>` : '<span class="free-text">Free</span>'}
                 </div>
             `;
         }
