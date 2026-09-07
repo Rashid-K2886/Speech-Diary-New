@@ -12,8 +12,6 @@
             --accent: #eff6ff;
             --gray-bg: #f8fafc;
             --text: #1e293b;
-            --danger: #ef4444;
-            --danger-dark: #dc2626;
         }
 
         body {
@@ -107,18 +105,15 @@
             background-color: #e2e8f0; 
         }
         
-        /* ഫ്രീ ദിവസങ്ങളുടെ സ്റ്റൈൽ */
         .day-cell.free { 
             border-bottom: 3px solid #22c55e; 
         }
         
-        /* ഇവന്റ് ഉള്ള ദിവസങ്ങളുടെ സ്റ്റൈൽ (ഫോട്ടോയിലേതുപോലെ ലൈറ്റ് ബ്ലൂ ബാക്ക്ഗ്രൗണ്ട്) */
         .day-cell.busy { 
             background-color: #dbeafe; 
             border-bottom: 3px solid var(--primary-light); 
         }
         
-        /* തീയതി മുകളിൽ വലതുവശത്തേക്ക് അലൈൻ ചെയ്തു */
         .day-number { 
             font-weight: 800; 
             font-size: 15px; 
@@ -128,7 +123,6 @@
             padding-right: 2px;
         }
 
-        /* ഫോട്ടോയിൽ കാണുന്ന പോലെയുള്ള ബ്ലൂ ബാഡ്ജ് ടാഗ് */
         .badge-count {
             font-size: 9px;
             background: var(--primary);
@@ -148,7 +142,6 @@
             margin-bottom: 2px;
         }
 
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -216,7 +209,6 @@
         <h1>Abid Hudavi Speech Diary</h1>
     </header>
 
-    <!-- Monthly View -->
     <div class="calendar-card">
         <div class="calendar-header">
             <button class="btn-primary" onclick="changeMonth(-1)">&lt; Prev</button>
@@ -226,14 +218,12 @@
         <div class="calendar-grid" id="calendarGrid"></div>
     </div>
 
-    <!-- Upcoming Event List -->
     <div class="calendar-card">
         <h2 style="color: var(--primary); font-size: 18px; margin-bottom: 15px;">Upcoming Events (Chronological)</h2>
         <div id="eventList">Loading events from Cloud...</div>
     </div>
 </div>
 
-<!-- Add Event Modal -->
 <div class="modal" id="eventModal">
     <div class="modal-content">
         <h2 id="modalTitle" style="color: var(--primary); margin-top:0; font-size: 20px;">New Speech Entry</h2>
@@ -299,11 +289,26 @@
         }
     }
 
+    function cleanDate(dateStr) {
+        if (!dateStr) return '';
+        let d = new Date(dateStr);
+        if (!isNaN(d.getTime())) {
+            let year = d.getFullYear();
+            let month = String(d.getMonth() + 1).padStart(2, '0');
+            let day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        return dateStr.toString().substring(0, 10);
+    }
+
     function loadEventsFromSheet() {
         fetch(SCRIPT_URL)
             .then(response => response.json())
             .then(data => {
-                events = data;
+                events = data.map(ev => {
+                    ev.date = cleanDate(ev.date);
+                    return ev;
+                });
                 events.sort((a, b) => new Date(`${a.date}T${a.time24 || '00:00'}`) - new Date(`${b.date}T${b.time24 || '00:00'}`));
                 render();
             })
@@ -366,11 +371,12 @@
         .catch(error => console.error('Error saving data:', error));
     });
 
+    // DD-MM-YYYY ഫോർമാറ്റിലേക്ക് മാറ്റുന്ന ഫംഗ്ഷൻ
     function formatDateDDMMYYYY(dateString) {
         if (!dateString) return '';
         const parts = dateString.split('-');
         if (parts.length === 3) {
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
         }
         return dateString;
     }
